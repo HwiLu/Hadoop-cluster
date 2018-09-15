@@ -2,7 +2,7 @@
 #nodes:means your cluster hosts
 #loop needed: To note a job need loop to run
 Time=`date +%F`
-echo "Author: Hwilu, contact Hwilu if you have any question. "| tee ${Time}_Daily_Check_result.log
+echo "Author: Hwilu, contact Hwilu if you have any question. " | tee ${Time}_Daily_Check_result.log
 yesterday=`date -d "1 day ago" +"%Y%m%d"`                                                  
 cluster_name=`hostname | awk -F "-" '{print $2}' `
 
@@ -222,7 +222,7 @@ function flume_status(){
 
 function main(){
 #	echo "-------------- start check Host_status -----------------"
-#	Host_status		
+	Host_status		
 #	echo "-------------- start check disk_status ------------------"
 #	Disk_Status	
 	echo "-------------- start check disk usage ------------------"
@@ -234,15 +234,15 @@ function main(){
 #	echo "-------------- start check yarn-status ------------------"
 #	yarn_status
 #	echo "-------------- start check Hive-status ------------------"
-#	hive_status
+	hive_status
 #	echo "-------------- start check HBase-status------------------"
 #	HBase_status
 #	echo "-------------- start check yarn-status ------------------"
 #	zookeeper_status
 #	echo "-------------- start check zookeeper-status ------------------"
-#	kerberos_status
+	kerberos_status
 #	echo "-------------- start check flume-status ------------------"	
-#	flume_status	
+	flume_status	
 }
 main | tee ${Time}_Daily_Check_result.log
 
