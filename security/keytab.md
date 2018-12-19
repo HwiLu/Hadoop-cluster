@@ -1,6 +1,8 @@
 * [在kerberos的kdc上执行kadmin.local](#在kerberos的kdc上执行kadmin.local)
 * [新增认证规则](#新增认证规则)
 
+----
+
 ## 在kerberos的kdc上执行kadmin.local
 
 ```vim
