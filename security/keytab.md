@@ -1,3 +1,5 @@
+* [## 在kerberos的kdc上执行kadmin.local](aa)
+
 ## 在kerberos的kdc上执行kadmin.local
 
 ```vim
