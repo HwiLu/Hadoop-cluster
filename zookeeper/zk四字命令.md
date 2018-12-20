@@ -1,11 +1,11 @@
 ```vim
-可以通过命令：echo stat|nc 127.0.0.1 2181 来查看哪个节点被选择作为follower或者leader。
+echo stat|nc 127.0.0.1 2181 ,查看哪个节点被选择作为follower或者leader。
 
-使用echo ruok|nc 127.0.0.1 2181 测试是否启动了该Server，若回复imok表示已经启动。
+echo ruok|nc 127.0.0.1 2181 ,测试是否启动了该Server，若回复imok表示已经启动。
 
 echo dump| nc 127.0.0.1 2181 ,列出未经处理的会话和临时节点。
 
-echo kill | nc 127.0.0.1 2181 ,关掉server
+echo kill | nc 127.0.0.1 2181 ,关掉server。
 
 echo conf | nc 127.0.0.1 2181 ,输出相关服务配置的详细信息。
 
