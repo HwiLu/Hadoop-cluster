@@ -4,6 +4,7 @@
 这样华为组只能通过其client向NameNode1提交作业请求，阿里组只能向NameNode2提交作业请求，而DataNode会处理来着所有NameNode 的作业，这样便减少了NameNode的压力
 
 **viewFS**
+
 配置mountTable.xml
 
 为用户提供统一的全局HDFS访问入口，HDFS Federation借鉴Linux提供了client-side mount table，这是通过一层新的文件系统viewfs实现的，它实际上提供了一种映射关系，将一个全局（逻辑）目录映射到某个具体的namenode（物理）目录上，采用这种方式后，core-site.xml配置如下：
@@ -40,5 +41,5 @@ namenode3管理/projects/bar目录，则可以创建一个名为“cmt”的clie
 </configuration>
 ```
 
-[reference:dongxicheng.com](http://dongxicheng.org/hadoop-hdfs/hdfs-federation-viewfs/)
+[__reference:dongxicheng.org__](http://dongxicheng.org/hadoop-hdfs/hdfs-federation-viewfs/)
 
