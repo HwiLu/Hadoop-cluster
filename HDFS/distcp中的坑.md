@@ -17,7 +17,13 @@ using -skipCrc. (NOTE: By skipping checksums, one runs the risk of masking data-
 `-update`使用；然而，将`skipcrccheck`和`-update`加上之后，最后cp过来的数据都或被放在同一个目录之下，即原目录结构变了。
 最后，是加上`-pb`参数即可解决。
 
+
+
 **Bug2**
 
 提示kerberos认证问题
 
+**situation1** : distcp中途中断，需断点续传。
+
+使用`-update`选项，官方解释：
+> Overwrite if source and destination differ in size, blocksize, or checksum.
