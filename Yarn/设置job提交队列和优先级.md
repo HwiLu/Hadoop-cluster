@@ -5,7 +5,7 @@
 作业优先级：`mapreduce.job.priority`，优先级默认有5个:LOW VERY_LOW NORMAL（默认） HIGH VERY_HIGH
 
 # 1、静态设置
-##1.1 Pig版本
+## 1.1 Pig版本
 ```
 SET mapreduce.job.queuename root.default;
 ```
