@@ -111,3 +111,244 @@ olcRootPW: {SSHA}9/l2ELwbWtBTip6h35bD6SQzvZMG/pMc
 ldapmodify -Y EXTERNAL  -H ldapi:/// -f db.ldif
 ```
 
+修改**/etc/openldap/slapd.d/cn=config/olcDatabase={1}monitor.ldif** 来使得只有ldap的最高账号ldapadm账号才能监控ldap，但是不推荐直接修改改文件，所以新建一个monitor.ldif文件，之后将该配置文件发送至ldap server。
+
+```sh
+vi monitor.ldif
+```
+
+插入以下内容：
+
+```sh
+dn: olcDatabase={1}monitor,cn=config
+changetype: modify
+replace: olcAccess
+olcAccess: {0}to * by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external, cn=auth" read by dn.base="cn=ldapadm,dc=site,dc=com" read by * none
+```
+
+将该配置发送至ldap server。
+
+```sh
+ldapmodify -Y EXTERNAL  -H ldapi:/// -f monitor.ldif
+```
+
+# 设置ldap数据库
+
+将数据库配置文件样式复制到`/var/lib/ldap`下，并赋权给ldap用户：
+
+```sh
+cp /usr/share/openldap-servers/DB_CONFIG.example /var/lib/ldap/DB_CONFIG
+chown ldap:ldap /var/lib/ldap/*
+```
+
+添加cosine和nis 视图
+
+```bash
+ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/cosine.ldif
+ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/nis.ldif 
+ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/inetorgperson.ldif
+```
+
+给domain 新建base.ldif文件
+
+```sh
+vi base.ldif
+```
+
+填入以下配置，需根据具体情况修改对应配置信息
+
+```sh
+dn: dc=site,dc=com
+dc: site
+objectClass: top
+objectClass: domain
+
+dn: cn=ldapadm ,dc=site,dc=com
+objectClass: organizationalRole
+cn: ldapadm
+description: LDAP Manager
+
+dn: ou=People,dc=site,dc=com
+objectClass: organizationalUnit
+ou: People
+
+dn: ou=Group,dc=site,dc=com
+objectClass: organizationalUnit
+ou: Group
+```
+
+建立目录结构：
+
+```sh
+ldapadd -x -W -D "cn=ldapadm,dc=site,dc=com" -f base.ldi
+```
+
+输出如下
+
+```bash
+Enter LDAP Password: 
+adding new entry "dc=site,dc=com"
+adding new entry "cn=ldapadm ,dc=site,dc=com"
+adding new entry "ou=People,dc=site,dc=com"
+adding new entry "ou=Group,dc=site,dc=com"
+```
+
+# 创建LDAP用户
+
+创建一个名为raj的用户
+
+```powershell
+vi raj.ldif
+```
+
+填入
+
+```sh
+dn: uid=raj,ou=People,dc=site,dc=com
+objectClass: top
+objectClass: account
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: raj
+uid: raj
+uidNumber: 9999
+gidNumber: 100
+homeDirectory: /home/raj
+loginShell: /bin/bash
+gecos: Raj [Admin (at) Site]
+userPassword: {crypt}x
+shadowLastChange: 17058
+shadowMin: 0
+shadowMax: 99999
+shadowWarning: 7
+```
+
+使用`ldapadd`命令在openLDAP路径下创建一个名为raj的用户。
+
+```sh
+ldapadd -x -W -D "cn=ldapadm,dc=com,dc=site" -f raj.ldif
+```
+
+输入LDAP 管理用户密码
+
+```
+Enter LDAP Password: 
+adding new entry "uid=raj,ou=People,dc=com,dc=site"
+```
+
+为该用户设置一个密码
+
+```sh
+ldappasswd -s 密码 -W -D "cn=ldapadm,dc=site,dc=com" -x "uid=raj,ou=People,dc=site,dc=com"
+```
+
+验证ldap条目
+
+```sh
+ldapsearch -x cn=raj -b dc=site,dc=com
+```
+
+输出如下：
+
+```sh
+# extended LDIF
+#
+# LDAPv3
+# base <dc=site,dc=com> with scope subtree
+# filter: cn=raj
+# requesting: ALL
+#
+
+# raj, People, site.com
+dn: uid=raj,ou=People,dc=site,dc=com
+objectClass: top
+objectClass: account
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: raj
+uid: raj
+uidNumber: 9999
+gidNumber: 100
+homeDirectory: /home/raj
+loginShell: /bin/bash
+gecos: Raj [Admin (at) Site]
+shadowLastChange: 17058
+shadowMin: 0
+shadowMax: 99999
+shadowWarning: 7
+userPassword:: e1NTSEF9Y0M1UiszYnhXSGRCQWVuTk1CQS9EWEwySi9YTGJLbFI=
+
+# search result
+search: 2
+result: 0 Success
+
+# numResponses: 2
+# numEntries: 1
+```
+
+如果需要删除ldap内的一个条目，使用以下指令
+
+```sh
+ldapdelete -W -D "cn=ldapadm,dc=site,dc=com" "uid=raj,ou=People,dc=site,dc=com"
+```
+
+
+
+# 防火墙
+
+如果防火墙开启，允许ldap服务可以被访问。
+
+```sh
+firewall-cmd --permanent --add-service=ldap
+firewall-cmd --reload
+```
+
+# 开启ldap日志
+
+```sh
+vi /etc/rsyslog.conf
+```
+
+插入
+
+```sh
+local4.* /var/log/ldap.log
+```
+
+重启rsyslong
+
+```sh
+systemctl restart rsyslog
+```
+
+# 配置ldap client
+
+在所有作为ldap client节点上运行
+
+```sh
+yum install -y openldap-clients nss-pam-ldapd
+```
+
+为了实现单点登陆，配置ldap client连接ldap server
+
+```sh
+authconfig --enableldap --enableldapauth --ldapserver=192.168.1.100 --ldapbasedn="dc=site,dc=com" --enablemkhomedir --update
+```
+
+重启ldap client服务
+
+```sh
+systemctl restart  nslcd
+```
+
+# 验证ldap登陆
+
+获取用户条目
+
+```sh
+getent passwd raj
+```
+
+
+
+![image-20190124153149242](../picture/ldapuser.png)
