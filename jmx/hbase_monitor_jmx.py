@@ -53,7 +53,7 @@ def get_MasterAssignmentMangerInfo(activeMasterIP):
 	else:
 		val1=json.loads(resu.read())
 		return val1['beans'][0]
-	
+#获取本地化率
 def get_avgBlockLocality(activeMasterIP):
 	MasterServerInfoList = get_MasterServerInfo(activeMasterIP)
 	LiveRSList = MasterServerInfoList['tag.liveRegionServers'].split(';')
