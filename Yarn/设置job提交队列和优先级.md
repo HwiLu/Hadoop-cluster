@@ -18,6 +18,8 @@ SET mapreduce.job.priority HIGH;
 SET mapreduce.job.queuename=root.default;
 ```
 ```
+SET tez.queue.name=队列名
+```
 SET mapreduce.job.priority=HIGH;
 ```
 ## 1.3 MapReduce版本：
