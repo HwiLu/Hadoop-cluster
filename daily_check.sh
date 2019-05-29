@@ -44,7 +44,7 @@ function Disk_Status(){
 	echo
 	echo "------------------disk number of every host------------------------"
 	#loop needed , cause slowly
-	for ip in `cat all_rz_nodes | awk '{print $1}'`
+	for ip in `cat all_cluster_nodes | awk '{print $1}'`
 	do
 		#the number of disk ,check whether have disks dropped 
 		ssh root@$ip "echo numofdisk:\$(hostname;df -h | wc -l)" >> Tmp_Daily_check_result.log
@@ -72,7 +72,7 @@ function disk_usage(){
 	#loop needed
 	echo "---------------------disk usage --------------------------" >> Tmp_Daily_check_result.log
 	echo >> Tmp_Daily_check_result.log
-	for ip in `grep "BJXXG-JFRZ-DN" all_rz_nodes | awk '{print $1}'`
+	for ip in `grep "BJXXG-JFcluster-DN" all_cluster_nodes | awk '{print $1}'`
 	do
 		host=disk_usage_$ip:
 		echo "-------------------$host---------------------" >>Tmp_Daily_check_result.log
@@ -168,7 +168,7 @@ EOF
 	
 	}
 	
-#cluser rz only
+#cluser cluster only
 function hive_status(){
 	echo "show databases;" | hive
 	if [ $? -eq 0];then
@@ -178,7 +178,7 @@ function hive_status(){
 	fi
 }
 
-#cluser qd only
+#cluser cluster only
 function HBase_status(){
 	#hbase status
 	echo list | hbase shell
@@ -212,7 +212,7 @@ function flume_status(){
 	#flume status
 	echo "------------------------start check flume status------------------"
 	#need loop
-	for flumeip in `cat all_rz_nodes | grep "FLUME" | awk '{print $1}'`
+	for flumeip in `cat all_cluster_nodes | grep "FLUME" | awk '{print $1}'`
 	do	
 		ssh root@$flumeip "echo flume_status $(hostname -i;ps -ef | grep flume.node.Application |grep -v grep | awk '{print $1}')" >> Tmp_Daily_check_result.log
 	done
